@@ -13,17 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="AI工具工程，用来辅助生成代码"
+        android:text="生成代码测试"
         />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:textAllCaps="false"
-        android:gravity="center"
-        android:text="测试"
-        android:onClick="onTest1"
-        />
+    
 
 </LinearLayout>
