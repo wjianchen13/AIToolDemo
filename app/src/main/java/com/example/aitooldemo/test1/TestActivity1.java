@@ -33,8 +33,6 @@ public class TestActivity1 extends AppCompatActivity {
         badgeProgressLtr = findViewById(R.id.badgeProgressLtr);
         badgeProgressRtl = findViewById(R.id.badgeProgressRtl);
 
-        ViewCompat.setLayoutDirection(badgeProgressLtr, ViewCompat.LAYOUT_DIRECTION_LTR);
-        ViewCompat.setLayoutDirection(badgeProgressRtl, ViewCompat.LAYOUT_DIRECTION_RTL);
         badgeProgressLtr.setProgressDirection(BadgeProgressView.DIRECTION_LTR);
         badgeProgressRtl.setProgressDirection(BadgeProgressView.DIRECTION_RTL);
 
@@ -42,7 +40,7 @@ public class TestActivity1 extends AppCompatActivity {
         badgeProgressRtl.setBadgeImageResource(R.drawable.test_ic_badge_select);
 
         // 测试进度 50%
-        badgeProgressLtr.setProgress(0.5f);
-        badgeProgressRtl.setProgress(0.5f);
+        badgeProgressLtr.setProgress(0.8f);
+        badgeProgressRtl.setProgress(0.3f);
     }
 }
