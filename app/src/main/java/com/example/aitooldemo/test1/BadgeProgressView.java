@@ -43,6 +43,9 @@ public class BadgeProgressView extends FrameLayout {
     private long requestSerial = 0L;
     private int decodeWidthPx;
     private int decodeHeightPx;
+    private boolean hasExplicitDecodeSize = false;
+    @Nullable
+    private Object lastModel;
 
     private CustomTarget<Bitmap> progressTarget;
 
@@ -67,14 +70,17 @@ public class BadgeProgressView extends FrameLayout {
     }
 
     public void setBadgeImageResource(@DrawableRes int drawableResId) {
+        lastModel = drawableResId;
         loadBadgeImage(drawableResId);
     }
 
     public void setBadgeImageUrl(@Nullable String url) {
         if (TextUtils.isEmpty(url)) {
+            lastModel = null;
             resetContent();
             return;
         }
+        lastModel = url;
         loadBadgeImage(url);
     }
 
@@ -155,6 +161,8 @@ public class BadgeProgressView extends FrameLayout {
     }
 
     private void resetContent() {
+        // Invalidate all inflight callbacks to prevent stale resources from being set.
+        requestSerial++;
         clearCurrentRequests();
         hasImage = false;
         imageWidth = 0;
@@ -203,6 +211,19 @@ public class BadgeProgressView extends FrameLayout {
             }
 
             @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                if (!isCurrentRequest(serial)) {
+                    return;
+                }
+                hasImage = false;
+                imageWidth = 0;
+                imageHeight = 0;
+                ivProgress.setImageDrawable(errorDrawable);
+                ivBackground.setImageDrawable(errorDrawable);
+                ivProgress.setClipBounds(null);
+            }
+
+            @Override
             public void onLoadCleared(@Nullable Drawable placeholder) {
                 if (!isCurrentRequest(serial)) {
                     return;
@@ -234,11 +255,13 @@ public class BadgeProgressView extends FrameLayout {
 
         if (decodeSize > 0) {
             setDecodeSizePx(decodeSize, decodeSize);
+            hasExplicitDecodeSize = true;
         }
         if (decodeWidth > 0 || decodeHeight > 0) {
             int finalW = decodeWidth > 0 ? decodeWidth : decodeWidthPx;
             int finalH = decodeHeight > 0 ? decodeHeight : decodeHeightPx;
             setDecodeSizePx(finalW, finalH);
+            hasExplicitDecodeSize = true;
         }
     }
 
@@ -246,6 +269,14 @@ public class BadgeProgressView extends FrameLayout {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         if (w != oldw || h != oldh) {
+            // If decode size is not explicitly specified, keep it in sync with final render size.
+            if (!hasExplicitDecodeSize && w > 0 && h > 0 && (decodeWidthPx != w || decodeHeightPx != h)) {
+                setDecodeSizePx(w, h);
+                if (lastModel != null) {
+                    loadBadgeImage(lastModel);
+                    return;
+                }
+            }
             updateProgressClip();
         }
     }
