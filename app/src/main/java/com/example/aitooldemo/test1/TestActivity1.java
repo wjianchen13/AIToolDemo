@@ -1,8 +1,6 @@
 package com.example.aitooldemo.test1;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +12,9 @@ import com.example.aitooldemo.R;
 
 public class TestActivity1 extends AppCompatActivity {
 
+    private BadgeProgressView badgeProgressLtr;
+    private BadgeProgressView badgeProgressRtl;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,10 +25,24 @@ public class TestActivity1 extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        initBadgeProgressDemo();
     }
 
-    public void onTest1(View v) {
-        startActivity(new Intent(this, TestActivity1.class));
-    }
+    private void initBadgeProgressDemo() {
+        badgeProgressLtr = findViewById(R.id.badgeProgressLtr);
+        badgeProgressRtl = findViewById(R.id.badgeProgressRtl);
 
+        ViewCompat.setLayoutDirection(badgeProgressLtr, ViewCompat.LAYOUT_DIRECTION_LTR);
+        ViewCompat.setLayoutDirection(badgeProgressRtl, ViewCompat.LAYOUT_DIRECTION_RTL);
+        badgeProgressLtr.setProgressDirection(BadgeProgressView.DIRECTION_LTR);
+        badgeProgressRtl.setProgressDirection(BadgeProgressView.DIRECTION_RTL);
+
+        badgeProgressLtr.setBadgeImageResource(R.drawable.test_ic_badge_select);
+        badgeProgressRtl.setBadgeImageResource(R.drawable.test_ic_badge_select);
+
+        // 测试进度 50%
+        badgeProgressLtr.setProgress(0.5f);
+        badgeProgressRtl.setProgress(0.5f);
+    }
 }
