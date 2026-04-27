@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.content.res.TypedArray;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -40,6 +41,8 @@ public class BadgeProgressView extends FrameLayout {
     private int imageHeight = 0;
     private int progressDirection = DIRECTION_AUTO;
     private long requestSerial = 0L;
+    private int decodeWidthPx;
+    private int decodeHeightPx;
 
     private CustomTarget<Bitmap> progressTarget;
 
@@ -57,6 +60,9 @@ public class BadgeProgressView extends FrameLayout {
         LayoutInflater.from(context).inflate(R.layout.view_badge_progress, this, true);
         ivBackground = findViewById(R.id.ivBackground);
         ivProgress = findViewById(R.id.ivProgress);
+        int defaultSize = getResources().getDimensionPixelSize(R.dimen.badge_progress_size);
+        setDecodeSizePx(defaultSize, defaultSize);
+        applyDecodeAttrs(context, attrs);
         applyBackgroundGrayFilter();
     }
 
@@ -66,9 +72,21 @@ public class BadgeProgressView extends FrameLayout {
 
     public void setBadgeImageUrl(@Nullable String url) {
         if (TextUtils.isEmpty(url)) {
+            resetContent();
             return;
         }
         loadBadgeImage(url);
+    }
+
+    public void setDecodeSizePx(int sizePx) {
+        setDecodeSizePx(sizePx, sizePx);
+    }
+
+    public void setDecodeSizePx(int widthPx, int heightPx) {
+        int screenW = getResources().getDisplayMetrics().widthPixels;
+        int screenH = getResources().getDisplayMetrics().heightPixels;
+        decodeWidthPx = Math.max(1, Math.min(widthPx, screenW));
+        decodeHeightPx = Math.max(1, Math.min(heightPx, screenH));
     }
 
     public void setProgress(int progress) {
@@ -134,6 +152,10 @@ public class BadgeProgressView extends FrameLayout {
             requestManager.clear(progressTarget);
             progressTarget = null;
         }
+    }
+
+    private void resetContent() {
+        clearCurrentRequests();
         hasImage = false;
         imageWidth = 0;
         imageHeight = 0;
@@ -145,13 +167,30 @@ public class BadgeProgressView extends FrameLayout {
     private void loadBadgeImage(@NonNull Object model) {
         requestSerial++;
         final long currentRequestSerial = requestSerial;
+        // Keep current drawable until new resource is ready to avoid visible flicker.
         clearCurrentRequests();
-        final int[] overrideSize = resolveOverrideSize();
+        startLoadWhenSizeReady(model, currentRequestSerial);
+    }
+
+    private boolean isCurrentRequest(long serial) {
+        return requestSerial == serial;
+    }
+
+    private void applyBackgroundGrayFilter() {
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(0f);
+        ivBackground.setColorFilter(new ColorMatrixColorFilter(matrix));
+    }
+
+    private void startLoadWhenSizeReady(@NonNull Object model, long serial) {
+        if (!isCurrentRequest(serial)) {
+            return;
+        }
 
         progressTarget = new CustomTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                if (!isCurrentRequest(currentRequestSerial)) {
+                if (!isCurrentRequest(serial)) {
                     return;
                 }
                 hasImage = true;
@@ -165,7 +204,7 @@ public class BadgeProgressView extends FrameLayout {
 
             @Override
             public void onLoadCleared(@Nullable Drawable placeholder) {
-                if (!isCurrentRequest(currentRequestSerial)) {
+                if (!isCurrentRequest(serial)) {
                     return;
                 }
                 hasImage = false;
@@ -179,45 +218,41 @@ public class BadgeProgressView extends FrameLayout {
         requestManager
                 .asBitmap()
                 .load(model)
-                .apply(new RequestOptions().override(overrideSize[0], overrideSize[1]))
+                .apply(new RequestOptions().override(decodeWidthPx, decodeHeightPx))
                 .into(progressTarget);
     }
 
-    private boolean isCurrentRequest(long serial) {
-        return requestSerial == serial;
+    private void applyDecodeAttrs(@NonNull Context context, @Nullable AttributeSet attrs) {
+        if (attrs == null) {
+            return;
+        }
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.BadgeProgressView);
+        int decodeSize = ta.getDimensionPixelSize(R.styleable.BadgeProgressView_bpvDecodeSize, -1);
+        int decodeWidth = ta.getDimensionPixelSize(R.styleable.BadgeProgressView_bpvDecodeWidth, -1);
+        int decodeHeight = ta.getDimensionPixelSize(R.styleable.BadgeProgressView_bpvDecodeHeight, -1);
+        ta.recycle();
+
+        if (decodeSize > 0) {
+            setDecodeSizePx(decodeSize, decodeSize);
+        }
+        if (decodeWidth > 0 || decodeHeight > 0) {
+            int finalW = decodeWidth > 0 ? decodeWidth : decodeWidthPx;
+            int finalH = decodeHeight > 0 ? decodeHeight : decodeHeightPx;
+            setDecodeSizePx(finalW, finalH);
+        }
     }
 
-    private void applyBackgroundGrayFilter() {
-        ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(0f);
-        ivBackground.setColorFilter(new ColorMatrixColorFilter(matrix));
-    }
-
-    private int[] resolveOverrideSize() {
-        int w = getLayoutParams() != null ? getLayoutParams().width : 0;
-        int h = getLayoutParams() != null ? getLayoutParams().height : 0;
-
-        if (w <= 0) {
-            w = getWidth() > 0 ? getWidth() : ivProgress.getWidth();
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (w != oldw || h != oldh) {
+            updateProgressClip();
         }
-        if (h <= 0) {
-            h = getHeight() > 0 ? getHeight() : ivProgress.getHeight();
-        }
-
-        if (w <= 0 || h <= 0) {
-            int screenW = getResources().getDisplayMetrics().widthPixels;
-            int screenH = getResources().getDisplayMetrics().heightPixels;
-            // Fallback to screen bounds instead of hardcoded dp.
-            w = Math.max(1, screenW);
-            h = Math.max(1, screenH);
-        }
-
-        return new int[]{w, h};
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        clearCurrentRequests();
+        resetContent();
         super.onDetachedFromWindow();
     }
 }

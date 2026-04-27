@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -20,9 +21,10 @@
 
     <com.example.aitooldemo.test1.BadgeProgressView
         android:id="@+id/badgeProgressLtr"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="12dp" />
+        android:layout_width="@dimen/badge_progress_size"
+        android:layout_height="@dimen/badge_progress_size"
+        android:layout_marginTop="12dp"
+        app:bpvDecodeSize="@dimen/badge_progress_size" />
 
     <Button
         android:layout_width="match_parent"
@@ -43,10 +45,11 @@
 
     <com.example.aitooldemo.test1.BadgeProgressView
         android:id="@+id/badgeProgressRtl"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="@dimen/badge_progress_size"
+        android:layout_height="@dimen/badge_progress_size"
         android:layout_marginTop="12dp"
-        android:layoutDirection="rtl" />
+        android:layoutDirection="rtl"
+        app:bpvDecodeSize="@dimen/badge_progress_size" />
 
     <Button
         android:layout_width="match_parent"

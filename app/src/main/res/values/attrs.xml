@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="BadgeProgressView">
+        <attr name="bpvDecodeSize" format="dimension" />
+        <attr name="bpvDecodeWidth" format="dimension" />
+        <attr name="bpvDecodeHeight" format="dimension" />
+    </declare-styleable>
+
+</resources>
