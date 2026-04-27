@@ -35,7 +35,7 @@ public class BadgeProgressView extends FrameLayout {
     private final RequestManager requestManager;
 
     private boolean hasImage = false;
-    private float progress = 0f;
+    private int progress = 0;
     private int imageWidth = 0;
     private int imageHeight = 0;
     private int progressDirection = DIRECTION_AUTO;
@@ -71,15 +71,12 @@ public class BadgeProgressView extends FrameLayout {
         loadBadgeImage(url);
     }
 
-    public void setProgress(float progress) {
-        if (Float.isNaN(progress)) {
-            progress = 0f;
-        }
-        this.progress = Math.max(0f, Math.min(1f, progress));
+    public void setProgress(int progress) {
+        this.progress = Math.max(0, Math.min(100, progress));
         updateProgressClip();
     }
 
-    public float getProgress() {
+    public int getProgress() {
         return progress;
     }
 
@@ -104,7 +101,7 @@ public class BadgeProgressView extends FrameLayout {
             fullWidth = ivProgress.getWidth();
             height = ivProgress.getHeight();
         }
-        int cropWidth = Math.round(fullWidth * progress);
+        int cropWidth = Math.round((fullWidth * progress) / 100f);
         cropWidth = Math.max(0, Math.min(cropWidth, fullWidth));
 
         if (cropWidth == 0) {

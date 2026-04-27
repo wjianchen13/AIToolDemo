@@ -19,8 +19,8 @@ public class TestActivity1 extends AppCompatActivity {
 
     private String mUrl = "https://s3.bmp.ovh/2026/04/27/9htkEM0k.png";
 
-    private float mProgress1 = 0.0f;
-    private float mProgress2 = 0.0f;
+    private int mProgress1 = 0;
+    private int mProgress2 = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,24 +52,24 @@ public class TestActivity1 extends AppCompatActivity {
         }
 
         // 测试进度 50%
-        badgeProgressLtr.setProgress(0.8f);
-        badgeProgressRtl.setProgress(0.3f);
+        badgeProgressLtr.setProgress(80);
+        badgeProgressRtl.setProgress(30);
     }
 
     public void onTest1(View v) {
-        if(mProgress1 > 1.1) {
-            mProgress1 = 0.0f;
+        if (mProgress1 > 100) {
+            mProgress1 = 0;
         }
         badgeProgressLtr.setProgress(mProgress1);
-        mProgress1 = mProgress1 + 0.1f;
+        mProgress1 += 10;
     }
 
     public void onTest2(View v) {
-        if(mProgress2 > 1.1) {
-            mProgress2 = 0.0f;
+        if (mProgress2 > 100) {
+            mProgress2 = 0;
         }
         badgeProgressRtl.setProgress(mProgress2);
-        mProgress2 = mProgress2 + 0.1f;
+        mProgress2 += 10;
     }
 
 }
