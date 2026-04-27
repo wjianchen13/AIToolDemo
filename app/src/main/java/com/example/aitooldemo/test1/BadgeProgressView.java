@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -16,6 +17,7 @@ import androidx.core.view.ViewCompat;
 
 import com.example.aitooldemo.R;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 
@@ -27,13 +29,14 @@ public class BadgeProgressView extends FrameLayout {
 
     private final ImageView ivBackground;
     private final ImageView ivProgress;
+    private final RequestManager requestManager;
 
     private Bitmap sourceBitmap;
     private float progress = 0f;
     private int imageWidth = 0;
     private int imageHeight = 0;
     private int progressDirection = DIRECTION_AUTO;
-    private Integer sourceResId;
+    private Object requestToken;
 
     private CustomTarget<Bitmap> progressTarget;
     private CustomTarget<Bitmap> backgroundTarget;
@@ -48,61 +51,21 @@ public class BadgeProgressView extends FrameLayout {
 
     public BadgeProgressView(@NonNull Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        requestManager = Glide.with(context);
         LayoutInflater.from(context).inflate(R.layout.view_badge_progress, this, true);
         ivBackground = findViewById(R.id.ivBackground);
         ivProgress = findViewById(R.id.ivProgress);
     }
 
     public void setBadgeImageResource(@DrawableRes int drawableResId) {
-        sourceResId = drawableResId;
-        clearCurrentRequests();
+        loadBadgeImage(drawableResId, "res:" + drawableResId);
+    }
 
-        progressTarget = new CustomTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                if (sourceResId == null || sourceResId != drawableResId) {
-                    return;
-                }
-                sourceBitmap = resource;
-                imageWidth = resource.getWidth();
-                imageHeight = resource.getHeight();
-                updateImageViewSize(imageWidth, imageHeight);
-                ivProgress.setImageBitmap(resource);
-                updateProgressClip();
-                requestLayout();
-            }
-
-            @Override
-            public void onLoadCleared(@Nullable Drawable placeholder) {
-                ivProgress.setImageDrawable(placeholder);
-            }
-        };
-
-        backgroundTarget = new CustomTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                if (sourceResId == null || sourceResId != drawableResId) {
-                    return;
-                }
-                ivBackground.setImageBitmap(resource);
-            }
-
-            @Override
-            public void onLoadCleared(@Nullable Drawable placeholder) {
-                ivBackground.setImageDrawable(placeholder);
-            }
-        };
-
-        Glide.with(this)
-                .asBitmap()
-                .load(drawableResId)
-                .into(progressTarget);
-
-        Glide.with(this)
-                .asBitmap()
-                .load(drawableResId)
-                .transform(new GrayScaleBitmapTransformation())
-                .into(backgroundTarget);
+    public void setBadgeImageUrl(@Nullable String url) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        loadBadgeImage(url, "url:" + url);
     }
 
     public void setProgress(float progress) {
@@ -176,13 +139,69 @@ public class BadgeProgressView extends FrameLayout {
 
     private void clearCurrentRequests() {
         if (progressTarget != null) {
-            Glide.with(this).clear(progressTarget);
+            requestManager.clear(progressTarget);
             progressTarget = null;
         }
         if (backgroundTarget != null) {
-            Glide.with(this).clear(backgroundTarget);
+            requestManager.clear(backgroundTarget);
             backgroundTarget = null;
         }
+    }
+
+    private void loadBadgeImage(@NonNull Object model, @NonNull Object token) {
+        requestToken = token;
+        clearCurrentRequests();
+
+        progressTarget = new CustomTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                if (!isCurrentToken(token)) {
+                    return;
+                }
+                sourceBitmap = resource;
+                imageWidth = resource.getWidth();
+                imageHeight = resource.getHeight();
+                updateImageViewSize(imageWidth, imageHeight);
+                ivProgress.setImageBitmap(resource);
+                updateProgressClip();
+                requestLayout();
+            }
+
+            @Override
+            public void onLoadCleared(@Nullable Drawable placeholder) {
+                ivProgress.setImageDrawable(placeholder);
+            }
+        };
+
+        backgroundTarget = new CustomTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                if (!isCurrentToken(token)) {
+                    return;
+                }
+                ivBackground.setImageBitmap(resource);
+            }
+
+            @Override
+            public void onLoadCleared(@Nullable Drawable placeholder) {
+                ivBackground.setImageDrawable(placeholder);
+            }
+        };
+
+        requestManager
+                .asBitmap()
+                .load(model)
+                .into(progressTarget);
+
+        requestManager
+                .asBitmap()
+                .load(model)
+                .transform(new GrayScaleBitmapTransformation())
+                .into(backgroundTarget);
+    }
+
+    private boolean isCurrentToken(@NonNull Object token) {
+        return requestToken != null && requestToken.equals(token);
     }
 
     @Override

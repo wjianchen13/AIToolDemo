@@ -1,6 +1,8 @@
 package com.example.aitooldemo.test1;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +16,11 @@ public class TestActivity1 extends AppCompatActivity {
 
     private BadgeProgressView badgeProgressLtr;
     private BadgeProgressView badgeProgressRtl;
+
+    private String mUrl = "https://s3.bmp.ovh/2026/04/27/9htkEM0k.png";
+
+    private float mProgress1 = 0.0f;
+    private float mProgress2 = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +43,33 @@ public class TestActivity1 extends AppCompatActivity {
         badgeProgressLtr.setProgressDirection(BadgeProgressView.DIRECTION_LTR);
         badgeProgressRtl.setProgressDirection(BadgeProgressView.DIRECTION_RTL);
 
-        badgeProgressLtr.setBadgeImageResource(R.drawable.test_ic_badge_select);
-        badgeProgressRtl.setBadgeImageResource(R.drawable.test_ic_badge_select);
+        if (!TextUtils.isEmpty(mUrl)) {
+            badgeProgressLtr.setBadgeImageUrl(mUrl);
+            badgeProgressRtl.setBadgeImageUrl(mUrl);
+        } else {
+            badgeProgressLtr.setBadgeImageResource(R.drawable.test_ic_badge_select);
+            badgeProgressRtl.setBadgeImageResource(R.drawable.test_ic_badge_select);
+        }
 
         // 测试进度 50%
         badgeProgressLtr.setProgress(0.8f);
         badgeProgressRtl.setProgress(0.3f);
     }
+
+    public void onTest1(View v) {
+        if(mProgress1 > 1) {
+            mProgress1 = 0.0f;
+        }
+        badgeProgressLtr.setProgress(mProgress1);
+        mProgress1 = mProgress1 + 0.1f;
+    }
+
+    public void onTest2(View v) {
+        if(mProgress2 > 1) {
+            mProgress2 = 0.0f;
+        }
+        badgeProgressRtl.setProgress(mProgress2);
+        mProgress2 = mProgress2 + 0.1f;
+    }
+
 }

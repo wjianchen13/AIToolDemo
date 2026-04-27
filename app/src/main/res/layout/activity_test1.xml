@@ -24,6 +24,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test1"
+        android:onClick="onTest1"
+        android:textAllCaps="false"
+        />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,5 +47,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layoutDirection="rtl" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test2"
+        android:onClick="onTest2"
+        android:textAllCaps="false"
+        />
 
 </LinearLayout>
