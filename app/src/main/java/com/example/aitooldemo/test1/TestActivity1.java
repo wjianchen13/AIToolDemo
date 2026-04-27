@@ -57,7 +57,7 @@ public class TestActivity1 extends AppCompatActivity {
     }
 
     public void onTest1(View v) {
-        if(mProgress1 > 1) {
+        if(mProgress1 > 1.1) {
             mProgress1 = 0.0f;
         }
         badgeProgressLtr.setProgress(mProgress1);
@@ -65,7 +65,7 @@ public class TestActivity1 extends AppCompatActivity {
     }
 
     public void onTest2(View v) {
-        if(mProgress2 > 1) {
+        if(mProgress2 > 1.1) {
             mProgress2 = 0.0f;
         }
         badgeProgressRtl.setProgress(mProgress2);
