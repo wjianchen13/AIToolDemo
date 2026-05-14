@@ -19,13 +19,6 @@
         android:textColor="#FFFFFF"
         android:textSize="16sp" />
 
-    <com.example.aitooldemo.test1.BadgeProgressView
-        android:id="@+id/badgeProgressLtr"
-        android:layout_width="@dimen/badge_progress_size"
-        android:layout_height="@dimen/badge_progress_size"
-        android:layout_marginTop="12dp"
-        app:bpvDecodeSize="@dimen/badge_progress_size" />
-
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,57 +35,5 @@
         android:text="RTL 进度 50%（从右侧开始）"
         android:textColor="#FFFFFF"
         android:textSize="16sp" />
-
-    <com.example.aitooldemo.test1.BadgeProgressView
-        android:id="@+id/badgeProgressRtl"
-        android:layout_width="@dimen/badge_progress_size"
-        android:layout_height="@dimen/badge_progress_size"
-        android:layout_marginTop="12dp"
-        android:layoutDirection="rtl"
-        app:bpvDecodeSize="@dimen/badge_progress_size" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Test2"
-        android:onClick="onTest2"
-        android:textAllCaps="false"
-        />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="24dp"
-        android:background="#444444" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:text="HomePopupManager Test"
-        android:textColor="#FFCC00"
-        android:textSize="16sp" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Check Popup (shouldShowPopup)"
-        android:onClick="onCheckPopup"
-        android:textAllCaps="false" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Check Popup x5 (rapid calls)"
-        android:onClick="onCheckPopupBurst"
-        android:textAllCaps="false" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Reset Popup Manager"
-        android:onClick="onResetPopup"
-        android:textAllCaps="false" />
 
 </LinearLayout>

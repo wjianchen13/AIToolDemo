@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    tools:context=".test2.TestActivity2">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="加载Webp为灰色"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <ImageView
+        android:id="@+id/ivWebpGray"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="fitCenter" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="恢复彩色"
+        android:textAllCaps="false"
+        android:onClick="onTest1" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="设置灰色"
+        android:textAllCaps="false"
+        android:onClick="onTest2" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="加载动图"
+        android:textAllCaps="false"
+        android:onClick="onTest3" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="加载静态图"
+        android:textAllCaps="false"
+        android:onClick="onTest4" />
+
+</LinearLayout>
