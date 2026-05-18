@@ -1,6 +1,11 @@
 package com.example.aitooldemo.test1;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.SystemClock;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.LinkedList;
 
@@ -17,6 +22,9 @@ import java.util.LinkedList;
  */
 public class HomePopupManager {
     private static final long HOURS_24_MS = 24L * 60 * 60 * 1000;
+    private static final String PREFS_NAME = "home_popup_prefs";
+    private static final String KEY_BOOT_TIME = "boot_time";
+    private static final String KEY_TIMESTAMPS = "timestamps";
 
     /** 按时间顺序存储每次弹窗的时间戳，最早在头部，最新在尾部 */
     private final LinkedList<Long> mTimestampList = new LinkedList<>();
@@ -120,6 +128,70 @@ public class HomePopupManager {
             while (mTimestampList.size() > mHomePopupDailyLimit) {
                 mTimestampList.removeFirst();
             }
+        }
+    }
+
+    /**
+     * 将 mTimestampList 持久化到本地 SharedPreferences。
+     * 同时存储开机时间用于检测设备是否重启过。
+     */
+    public void saveToFile(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        long bootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
+
+        JSONArray jsonArray = new JSONArray();
+        for (Long ts : mTimestampList) {
+            jsonArray.put(ts);
+        }
+
+        prefs.edit()
+                .putLong(KEY_BOOT_TIME, bootTime)
+                .putString(KEY_TIMESTAMPS, jsonArray.toString())
+                .apply();
+    }
+
+    /**
+     * 从本地 SharedPreferences 加载 mTimestampList。
+     * 如果设备已重启（开机时间不匹配），则清除旧数据。
+     * 加载时会自动过滤超过24小时的过期记录。
+     */
+    public void loadFromFile(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        long savedBootTime = prefs.getLong(KEY_BOOT_TIME, -1);
+
+        long currentBootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
+        // 首次使用或设备已重启（开机时间不匹配），清除旧数据
+        if (savedBootTime == -1 || Math.abs(currentBootTime - savedBootTime) > 5000) {
+            prefs.edit().clear().apply();
+            return;
+        }
+
+        String timestampsJson = prefs.getString(KEY_TIMESTAMPS, null);
+        if (timestampsJson == null) {
+            return;
+        }
+
+        try {
+            JSONArray jsonArray = new JSONArray(timestampsJson);
+            long now = SystemClock.elapsedRealtime();
+            mTimestampList.clear();
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                long ts = jsonArray.getLong(i);
+                // 仅加载24小时内的记录，过期数据直接丢弃
+                if (now - ts <= HOURS_24_MS) {
+                    mTimestampList.addLast(ts);
+                }
+            }
+
+            // 裁剪超出每日上限的多余数据
+            if (mHomePopupDailyLimit > 0) {
+                while (mTimestampList.size() > mHomePopupDailyLimit) {
+                    mTimestampList.removeFirst();
+                }
+            }
+        } catch (JSONException e) {
+            mTimestampList.clear();
         }
     }
 
